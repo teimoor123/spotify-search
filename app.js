@@ -35,12 +35,12 @@ const APIController = (function() {
     }
     const _getArtistsByArtist = async (token, artistId) => {
         const limit = 10;
-        const result = await fetch(`https://api.spotify.com/v1/search?query=artist%3Anicki+minaj&type=artist&locale=en-US%2Cen%3Bq%3D0.9&offset=1&limit=1`, {
+        const result = await fetch(`https://api.spotify.com/v1/search?query=artist%3A${artistId}&type=artist&locale=en-US%2Cen%3Bq%3D0.9&offset=1&limit=${limit}`, {
             method: 'GET',
             headers: { 'Authorization' : 'Bearer ' + token}
         });
         const data = await result.json();
-        return data.playlists.items;
+        return data.artists.items;
     }
     const _getTracks = async (token, tracksEndPoint) => {
         const limit = 10;
@@ -69,6 +69,9 @@ const APIController = (function() {
         getPlaylistByGenre(token, genreId) {
             return _getPlaylistByGenre(token, genreId);
         },
+        getArtistsByArtist(token, artistId) {
+            return _getArtistsByArtist(token, artistId);
+        },
         getTracks(token, tracksEndPoint) {
             return _getTracks(token, tracksEndPoint);
         },
@@ -89,7 +92,11 @@ const UIController = (function() {
         buttonSubmit: '#btn_submit',
         divSongDetail: '#song-detail',
         hfToken: '#hidden_token',
-        divSonglist: '.song-list'
+        divSonglist: '.song-list',
+        searchArtist: '#search_artist',
+        buttonSubmit2: '#btn_submit2',
+        selectArtist: '#select_artist',
+        buttonSubmit3: '#btn_submit3'
     }
 
     //public methods
@@ -102,7 +109,11 @@ const UIController = (function() {
                 playlist: document.querySelector(DOMElements.selectPlaylist),
                 tracks: document.querySelector(DOMElements.divSonglist),
                 submit: document.querySelector(DOMElements.buttonSubmit),
-                songDetail: document.querySelector(DOMElements.divSongDetail)
+                songDetail: document.querySelector(DOMElements.divSongDetail),
+                artist: document.querySelector(DOMElements.searchArtist),
+                artists: document.querySelector(DOMElements.selectArtist),
+                submit2: document.querySelector(DOMElements.buttonSubmit2),
+                submit3: document.querySelector(DOMElements.buttonSubmit3),
             }
         },
 
@@ -119,6 +130,10 @@ const UIController = (function() {
         createTrack(id, name) {
             const html = `<a href="#" class="list-group-item list-group-item-action list-group-item-light" id="${id}">${name}</a>`;
             document.querySelector(DOMElements.divSonglist).insertAdjacentHTML('beforeend', html);
+        },
+        createArtist(text, value) {
+            const html = `<option value="${value}">${text}</option>`;
+            document.querySelector(DOMElements.selectArtist).insertAdjacentHTML('beforeend', html);
         },
         // need method to create the song detail
         createTrackDetail(img, title, artist) {
@@ -191,7 +206,7 @@ const APPController = (function(UICtrl, APICtrl) {
         const genreSelect = UICtrl.inputField().genre;       
         // get the genre id associated with the selected genre
         const genreId = genreSelect.options[genreSelect.selectedIndex].value;             
-        // ge the playlist based on a genre
+        // get the playlist based on a genre
         const playlist = await APICtrl.getPlaylistByGenre(token, genreId);       
         // create a playlist list item for every playlist returned
         playlist.forEach(p => UICtrl.createPlaylist(p.name, p.tracks.href));
@@ -214,6 +229,23 @@ const APPController = (function(UICtrl, APICtrl) {
         const tracks = await APICtrl.getTracks(token, tracksEndPoint);
         // create a track list item
         tracks.forEach(el => UICtrl.createTrack(el.track.href, el.track.name))
+        
+    });
+
+    // create submit button click event listener
+    DOMInputs.submit2.addEventListener('click', async (e) => {
+        // prevent page reset
+        e.preventDefault();
+        //get the token
+        const token = UICtrl.getStoredToken().token;        
+        // get the playlist field
+        const artistSearch = UICtrl.inputField().artist;
+        // get track endpoint based on the selected playlist
+        const artistsEndPoint = artistSearch.value;
+        // get the list of tracks
+        const artists = await APICtrl.getArtistsbyArtist(token, artistsEndPoint);
+        // create a track list item
+        artists.forEach(a => UICtrl.createArtist(a.href, a.name))
         
     });
 
