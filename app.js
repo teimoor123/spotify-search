@@ -35,7 +35,9 @@ const APIController = (function() {
     }
     const _getArtistsByArtist = async (token, artistId) => {
         const limit = 10;
-        const result = await fetch(`https://api.spotify.com/v1/search?query=artist%3A${artistId}&type=artist&locale=en-US%2Cen%3Bq%3D0.9&offset=1&limit=${limit}`, {
+        console.log('Token:', token);
+        console.log('Artist ID:', artistId);
+        const result = await fetch(`https://api.spotify.com/v1/search?q=${artistId}&type=artist`, {
             method: 'GET',
             headers: { 'Authorization' : 'Bearer ' + token}
         });
@@ -63,14 +65,14 @@ const APIController = (function() {
         getToken() {
             return _getToken();
         },
+        getArtistsByArtist(token, artistId) {
+            return _getArtistsByArtist(token, artistId);
+        },
         getGenres(token) {
             return _getGenres(token);
         },
         getPlaylistByGenre(token, genreId) {
             return _getPlaylistByGenre(token, genreId);
-        },
-        getArtistsByArtist(token, artistId) {
-            return _getArtistsByArtist(token, artistId);
         },
         getTracks(token, tracksEndPoint) {
             return _getTracks(token, tracksEndPoint);
@@ -167,6 +169,9 @@ const UIController = (function() {
             this.inputField().playlist.innerHTML = '';
             this.resetTracks();
         },
+        resetArtists() {
+            this.inputField().artists.innerHTML = '';
+        },
         storeToken(value) {
             document.querySelector(DOMElements.hfToken).value = value;
         },
@@ -236,6 +241,7 @@ const APPController = (function(UICtrl, APICtrl) {
     DOMInputs.submit2.addEventListener('click', async (e) => {
         // prevent page reset
         e.preventDefault();
+        UICtrl.resetArtists();
         //get the token
         const token = UICtrl.getStoredToken().token;        
         // get the playlist field
@@ -243,9 +249,10 @@ const APPController = (function(UICtrl, APICtrl) {
         // get track endpoint based on the selected playlist
         const artistsEndPoint = artistSearch.value;
         // get the list of tracks
-        const artists = await APICtrl.getArtistsbyArtist(token, artistsEndPoint);
+
+        const artists = await APICtrl.getArtistsByArtist(token, artistsEndPoint);
         // create a track list item
-        artists.forEach(a => UICtrl.createArtist(a.href, a.name))
+        artists.forEach(a => UICtrl.createArtist(a.name, a.href))
         
     });
 
