@@ -33,16 +33,23 @@ const APIController = (function() {
         const data = await result.json();
         return data.playlists.items;
     }
-    const _getArtistsByArtist = async (token, artistId) => {
-        const limit = 10;
-        console.log('Token:', token);
-        console.log('Artist ID:', artistId);
-        const result = await fetch(`https://api.spotify.com/v1/search?q=${artistId}&type=artist`, {
+    const _getArtistsByArtist = async (token, artistName) => {
+        const limit = 1;
+        const result = await fetch(`https://api.spotify.com/v1/search?q=${artistName}&type=artist&limit=${limit}`, {
             method: 'GET',
             headers: { 'Authorization' : 'Bearer ' + token}
         });
         const data = await result.json();
         return data.artists.items;
+    }
+    const _getAlbums = async (token, artistId) => {
+        const limit = 10;
+        const result = await fetch(`${artistId}/albums`, {
+            method: 'GET',
+            headers: { 'Authorization' : 'Bearer ' + token}
+        });
+        const data = await result.json();
+        return data.items;
     }
     const _getTracks = async (token, tracksEndPoint) => {
         const limit = 10;
@@ -74,6 +81,12 @@ const APIController = (function() {
         getPlaylistByGenre(token, genreId) {
             return _getPlaylistByGenre(token, genreId);
         },
+        getArtistsByArtist(token, artistName) {
+            return _getArtistsByArtist(token, artistName);
+        },
+        getAlbums(token, artistId) {
+            return _getAlbums(token, artistId);
+        },
         getTracks(token, tracksEndPoint) {
             return _getTracks(token, tracksEndPoint);
         },
@@ -97,8 +110,8 @@ const UIController = (function() {
         divSonglist: '.song-list',
         searchArtist: '#search_artist',
         buttonSubmit2: '#btn_submit2',
-        selectArtist: '#select_artist',
-        buttonSubmit3: '#btn_submit3'
+        divArtistlist: '.artist-list',
+        divAlbumlist: '.album-list',
     }
 
     //public methods
@@ -113,9 +126,9 @@ const UIController = (function() {
                 submit: document.querySelector(DOMElements.buttonSubmit),
                 songDetail: document.querySelector(DOMElements.divSongDetail),
                 artist: document.querySelector(DOMElements.searchArtist),
-                artists: document.querySelector(DOMElements.selectArtist),
                 submit2: document.querySelector(DOMElements.buttonSubmit2),
-                submit3: document.querySelector(DOMElements.buttonSubmit3),
+                artists2: document.querySelector(DOMElements.divArtistlist),
+                albums: document.querySelector(DOMElements.divAlbumlist)
             }
         },
 
@@ -133,9 +146,13 @@ const UIController = (function() {
             const html = `<a href="#" class="list-group-item list-group-item-action list-group-item-light" id="${id}">${name}</a>`;
             document.querySelector(DOMElements.divSonglist).insertAdjacentHTML('beforeend', html);
         },
-        createArtist(text, value) {
-            const html = `<option value="${value}">${text}</option>`;
-            document.querySelector(DOMElements.selectArtist).insertAdjacentHTML('beforeend', html);
+        createArtist2(id, name, img) {
+            const html = `<a href="#" class="list-group-item list-group-item-action list-group-item-light" id="${id}">${name} <img src="${img}" align="right" style="border-radius: 50%;"> </a>`;
+            document.querySelector(DOMElements.divArtistlist).insertAdjacentHTML('beforeend', html);
+        },
+        createAlbums(id, name, img) {
+            const html = `<a href="#" class="list-group-item list-group-item-action list-group-item-light" id="${id}">${name} <img src="${img}" align="right"> </a>`;
+            document.querySelector(DOMElements.divAlbumlist).insertAdjacentHTML('beforeend', html);
         },
         // need method to create the song detail
         createTrackDetail(img, title, artist) {
@@ -161,16 +178,23 @@ const UIController = (function() {
         resetTrackDetail() {
             this.inputField().songDetail.innerHTML = '';
         },
+        resetAlbumDetail() {
+            this.inputField().songDetail.innerHTML = '';
+        },
         resetTracks() {
             this.inputField().tracks.innerHTML = '';
             this.resetTrackDetail();
+        },
+        resetAlbums() {
+            this.inputField().albums.innerHTML = '';
+            this.resetAlbumDetail();
         },
         resetPlaylist() {
             this.inputField().playlist.innerHTML = '';
             this.resetTracks();
         },
-        resetArtists() {
-            this.inputField().artists.innerHTML = '';
+        resetArtists2() {
+            this.inputField().artists2.innerHTML = '';
         },
         storeToken(value) {
             document.querySelector(DOMElements.hfToken).value = value;
@@ -241,19 +265,19 @@ const APPController = (function(UICtrl, APICtrl) {
     DOMInputs.submit2.addEventListener('click', async (e) => {
         // prevent page reset
         e.preventDefault();
-        UICtrl.resetArtists();
+        UICtrl.resetArtists2();
+        UICtrl.resetAlbums();
         //get the token
         const token = UICtrl.getStoredToken().token;        
         // get the playlist field
         const artistSearch = UICtrl.inputField().artist;
         // get track endpoint based on the selected playlist
-        const artistsEndPoint = artistSearch.value;
+        const artistName = artistSearch.value;
         // get the list of tracks
 
-        const artists = await APICtrl.getArtistsByArtist(token, artistsEndPoint);
+        const artists = await APICtrl.getArtistsByArtist(token, artistName);
         // create a track list item
-        artists.forEach(a => UICtrl.createArtist(a.name, a.href))
-        
+        artists.forEach(a => UICtrl.createArtist2(a.href, a.name, a.images[0].url))
     });
 
     // create song selection click event listener
@@ -270,6 +294,21 @@ const APPController = (function(UICtrl, APICtrl) {
         // load the track details
         UICtrl.createTrackDetail(track.album.images[2].url, track.name, track.artists[0].name);
     });    
+
+    // create song selection click event listener
+    DOMInputs.artists2.addEventListener('click', async (e) => {
+        // prevent page reset
+        e.preventDefault();
+        // get the token
+        const token = UICtrl.getStoredToken().token;
+        // get the track endpoint
+        const artistId = e.target.id;
+        console.log(artistId);
+        //get the track object
+        const albums = await APICtrl.getAlbums(token, artistId);
+        // load the track details
+        albums.forEach(a => UICtrl.createAlbums(a.href, a.name, a.images[0].url))
+    }); 
 
     return {
         init() {

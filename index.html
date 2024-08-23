@@ -30,7 +30,6 @@
         </form>    
 
         <form action="">
-            <input type="hidden" id='hidden_token'>
             <div class="col-sm-6 form-group row mt-4 px-0">
                 <label for="Artist" class="form-label col-sm-2">Artist:</label>
                 <input name="" id="search_artist" class="form-control form-control-sm col-sm-10">              
@@ -40,13 +39,13 @@
                 <button type="submit" id="btn_submit2" class="btn btn-success col-sm-12">Search</button>
             </div>
             <div class="col-sm-6 form-group row px-0">
-                <label for="Artists" class="form-label col-sm-2">Artists:</label>
-                <select name="" id="select_artist" class="form-control form-control-sm col-sm-10">
+                <label for="Albums" class="form-label col-sm-2">Albums:</label>
+                <select name="" id="select_album" class="form-control form-control-sm col-sm-10">
                     <option>Select...</option>                    
                 </select>
             </div>     
             <div class="col-sm-6 row form-group px-0">
-                <button type="submit" id="btn_submit3" class="btn btn-success col-sm-12">Search</button>
+                <button type="submit" id="btn_submit4" class="btn btn-success col-sm-12">Select</button>
             </div> 
         </form>
 
@@ -58,7 +57,28 @@
             </div>
             <div class="offset-md-1 col-sm-4" id="song-detail">                
             </div>
-        </div>   
+        </div>
+
+        <div class="row">
+            <div class="col-sm-6 px-0">
+                <div class="list-group artist-list">
+                    
+                </div>                                             
+            </div>
+            <div class="offset-md-1 col-sm-4" id="artist-detail">                
+            </div>
+        </div> 
+
+        <div class="row">
+            <div class="col-sm-6 px-0">
+                <div class="list-group album-list">
+                    
+                </div>                                             
+            </div>
+            <div class="offset-md-1 col-sm-4" id="album-detail">                
+            </div>
+        </div> 
+
     </div>
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
