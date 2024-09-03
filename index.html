@@ -6,17 +6,20 @@
     <title>Spotify Web API Tutorial</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="main.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap">
 </head>
 <body>
-    
-    <div class="container">      
+    <div id="spotify-banner" class="row">
+        <img id="spotify-logo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Spotify_logo_with_text.svg/1200px-Spotify_logo_with_text.svg.png" style=" height: 80px; padding: 10px;">
+    </div>
+    <div class="container">   
         <div class="row">
             <div class="col-md-3">
                 <form action="">
                     <input type="hidden" id='hidden_token'>
 
                     <div class="form-group">
-                        <label for="search_artist" class="form-label"><h1>Artist search</h1></label>
+                        <h1>Spotify Search</h1>
                         <input id="search_artist" class="form-control form-control-sm" placeholder="Artist Name">
                     </div>
                     
@@ -26,22 +29,22 @@
                     
                 </form>
                 <div class="row">
-                    <div class="offset-md-1 col-sm-4" id="song-detail"></div>
+                    <div id="song-detail"></div>
                 </div>
             </div>
 
             <div class="col-md-3">
-                <div id="artist-results-header"></div>
+                <div id="artist-results-header" class="header"></div>
                 <div class="list-group artist-list"></div>                                             
             </div>
             
             <div class="col-md-3">
-                <div id="album-results-header"></div>
+                <div id="album-results-header" class="header"></div>
                 <div class="list-group album-list"></div> 
             </div>  
             
             <div class="col-md-3">
-                <div id="song-results-header"></div>
+                <div id="song-results-header" class="header"></div>
                 <div class="list-group song-list"></div>                                             
             </div>
         </div>

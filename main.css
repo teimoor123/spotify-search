@@ -1,3 +1,12 @@
+body {
+  background-color: #202020;
+  color:white;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Bebas Neue', sans-serif;
+}
+
 .btn.dropdown-toggle  {
   width:150px;
   text-align:left;
@@ -17,10 +26,7 @@ label {
   padding-left:0px !important;
 }
 
-img {
-  width:140px;
-  height:140px;
-}
+
 
 .btn-success {
   background-color: #3b7d4a!important;
@@ -32,4 +38,41 @@ img {
 
 img.track {
   border: 1px solid #8a8a8a;
+}
+
+#spotify-banner {
+  background-color: black;
+}
+
+#spotify-logo {
+  margin-left: 30px;
+}
+
+.header {
+  margin-top: 30px;
+}
+
+.highlighted {
+  background-color: #006060;
+  border: 2px solid #007bff;
+  border-radius: 5px; /* rounded corners */
+}
+
+.artist-list .list-group-item {
+  color: white;
+  background-color: #404040;
+}
+
+.album-list .list-group-item {
+  color: white;
+  background-color: #404040;
+}
+
+.song-list .list-group-item {
+  color: white;
+  background-color: #404040;
+}
+
+#song-detail {
+  font-weight: bold;
 }

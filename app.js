@@ -134,25 +134,37 @@ const UIController = (function() {
             document.querySelector(DOMElements.divAlbumlist).insertAdjacentHTML('beforeend', html);
         },
         // need method to create the song detail
-        createTrackDetail(img, title, artist) {
+        createTrackDetail(img, title, artist, explicit, audio) {
             const detailDiv = document.querySelector(DOMElements.divSongDetail);
             // any time user clicks a new song, we need to clear out the song detail div
-            detailDiv.innerHTML = '';
+            const explicitImg = explicit?
+                `<img src="https://www.seekpng.com/png/full/206-2068701_explicit-icon-facebook-icon-ash-color-symbols-gif.png" style=" width: 20px; height: 20px;">` :
+                ``;
 
-            const html = 
+            const playback = typeof audio === 'string' && audio.trim() !== ''
+                ? `<br><audio controls autoplay style="width: 250px; height: 30px;">
+                    <source src="${audio}" type="audio/mpeg">
+                    Your browser does not support the audio element.
+                </audio>`
+                : '<br>Sorry, no audio playback available yet for this song.';
+
+            detailDiv.innerHTML = 
             `
-            <div class="row col-sm-12 px-0">
-                <img src="${img}" alt="">        
+            <div>
+                <img src="${img}" alt="" style=" width: 200px; height: 200px;">        
             </div>
-            <div class="row col-sm-12 px-0">
-                <label for="Genre" class="form-label col-sm-12">${title}</label>
+            <div>
+                ${title}
+                ${explicitImg}
             </div>
-            <div class="row col-sm-12 px-0">
-                <label for="artist" class="form-label col-sm-12">By: ${artist}</label>
+            <div>
+                By: ${artist}
+                <br>
+                ${playback}
             </div> 
-            `;
+            `
+            ;
 
-            detailDiv.insertAdjacentHTML('beforeend', html)
         },
         resetTrackDetail() {
             this.inputField().songDetail.innerHTML = '';
@@ -163,13 +175,16 @@ const UIController = (function() {
         resetTracks() {
             this.inputField().tracks.innerHTML = '';
             this.resetTrackDetail();
+            document.querySelector(DOMElements.songsResultsHeader).innerHTML = '';
         },
         resetAlbums() {
             this.inputField().albums.innerHTML = '';
             this.resetAlbumDetail();
+            document.querySelector(DOMElements.albumsResultsHeader).innerHTML = '';
         },
         resetArtists2() {
             this.inputField().artists2.innerHTML = '';
+            document.querySelector(DOMElements.artistsResultsHeader).innerHTML = '';
         },
         storeToken(value) {
             document.querySelector(DOMElements.hfToken).value = value;
@@ -195,13 +210,21 @@ const APPController = (function(UICtrl, APICtrl) {
         UICtrl.storeToken(token);
     }
 
+    const removeHighlighting = (selector) => {
+        document.querySelectorAll(selector).forEach(item => {
+            item.classList.remove('highlighted');
+        });
+    };
+
     // create submit button click event listener
     DOMInputs.submit2.addEventListener('click', async (e) => {
         // prevent page reset
         e.preventDefault();
+        UICtrl.resetArtists2();
         // reset artist and album options
         UICtrl.resetArtists2();
         UICtrl.resetAlbums();
+        UICtrl.resetTracks();
         //get the token
         const token = UICtrl.getStoredToken().token;        
         // get the artist field
@@ -226,7 +249,10 @@ const APPController = (function(UICtrl, APICtrl) {
         //get the track object
         const track = await APICtrl.getTrack(token, trackEndpoint);
         // load the track details
-        UICtrl.createTrackDetail(track.album.images[2].url, track.name, track.artists[0].name);
+        UICtrl.createTrackDetail(track.album.images[2].url, track.name, track.artists[0].name, track.explicit, track.preview_url);
+        // highlight selected item and/or remove previous highlight
+        removeHighlighting('.song-list .list-group-item');
+        e.target.classList.add('highlighted');
     });    
 
     // create album selection click event listener
@@ -243,6 +269,9 @@ const APPController = (function(UICtrl, APICtrl) {
         const albums = await APICtrl.getAlbums(token, artistId);
         // load the albums details
         albums.forEach(a => UICtrl.createAlbum(a.href, a.name, a.images[0].url))
+        // highlight selected item and/or remove previous highlight
+        removeHighlighting('.artist-list .list-group-item');
+        e.target.classList.add('highlighted');
     }); 
 
     // create track selection click event listener
@@ -260,6 +289,9 @@ const APPController = (function(UICtrl, APICtrl) {
         const tracks = await APICtrl.getTracks(token, albumId);
         // load the albums details
         tracks.forEach(t => UICtrl.createTrack(t.href, t.name, img))
+        // highlight selected item and/or remove previous highlight
+        removeHighlighting('.album-list .list-group-item');
+        e.target.classList.add('highlighted');
     }); 
 
     return {
