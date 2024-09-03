@@ -9,77 +9,45 @@
 </head>
 <body>
     
-    <div class="container">        
-        <form action="">
-            <input type="hidden" id='hidden_token'>
-            <div class="col-sm-6 form-group row mt-4 px-0">
-                <label for="Genre" class="form-label col-sm-2">Genre:</label>
-                <select name="" id="select_genre" class="form-control form-control-sm col-sm-10">
-                    <option>Select...</option>                    
-                </select>
-            </div>
-            <div class="col-sm-6 form-group row px-0">
-                <label for="Genre" class="form-label col-sm-2">Playlists:</label>
-                <select name="" id="select_playlist" class="form-control form-control-sm col-sm-10">
-                    <option>Select...</option>                    
-                </select>
-            </div>                  
-            <div class="col-sm-6 row form-group px-0">
-                <button type="submit" id="btn_submit" class="btn btn-success col-sm-12">Search</button>
-            </div>          
-        </form>    
-
-        <form action="">
-            <div class="col-sm-6 form-group row mt-4 px-0">
-                <label for="Artist" class="form-label col-sm-2">Artist:</label>
-                <input name="" id="search_artist" class="form-control form-control-sm col-sm-10">              
-                </select>
-            </div>
-            <div class="col-sm-6 row form-group px-0">
-                <button type="submit" id="btn_submit2" class="btn btn-success col-sm-12">Search</button>
-            </div>
-            <div class="col-sm-6 form-group row px-0">
-                <label for="Albums" class="form-label col-sm-2">Albums:</label>
-                <select name="" id="select_album" class="form-control form-control-sm col-sm-10">
-                    <option>Select...</option>                    
-                </select>
-            </div>     
-            <div class="col-sm-6 row form-group px-0">
-                <button type="submit" id="btn_submit4" class="btn btn-success col-sm-12">Select</button>
-            </div> 
-        </form>
-
+    <div class="container">      
         <div class="row">
-            <div class="col-sm-6 px-0">
-                <div class="list-group song-list">
+            <div class="col-md-3">
+                <form action="">
+                    <input type="hidden" id='hidden_token'>
+
+                    <div class="form-group">
+                        <label for="search_artist" class="form-label"><h1>Artist search</h1></label>
+                        <input id="search_artist" class="form-control form-control-sm" placeholder="Artist Name">
+                    </div>
                     
-                </div>                                             
+                    <div class="form-group">
+                        <button type="submit" id="btn_submit2" class="btn btn-success">Search</button>
+                    </div>
+                    
+                </form>
+                <div class="row">
+                    <div class="offset-md-1 col-sm-4" id="song-detail"></div>
+                </div>
             </div>
-            <div class="offset-md-1 col-sm-4" id="song-detail">                
+
+            <div class="col-md-3">
+                <div id="artist-results-header"></div>
+                <div class="list-group artist-list"></div>                                             
+            </div>
+            
+            <div class="col-md-3">
+                <div id="album-results-header"></div>
+                <div class="list-group album-list"></div> 
+            </div>  
+            
+            <div class="col-md-3">
+                <div id="song-results-header"></div>
+                <div class="list-group song-list"></div>                                             
             </div>
         </div>
 
-        <div class="row">
-            <div class="col-sm-6 px-0">
-                <div class="list-group artist-list">
-                    
-                </div>                                             
-            </div>
-            <div class="offset-md-1 col-sm-4" id="artist-detail">                
-            </div>
-        </div> 
-
-        <div class="row">
-            <div class="col-sm-6 px-0">
-                <div class="list-group album-list">
-                    
-                </div>                                             
-            </div>
-            <div class="offset-md-1 col-sm-4" id="album-detail">                
-            </div>
-        </div> 
-
     </div>
+
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>

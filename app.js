@@ -16,25 +16,8 @@ const APIController = (function() {
         const data = await result.json();
         return data.access_token;
     }
-    const _getGenres = async (token) => {
-        const result = await fetch(`https://api.spotify.com/v1/browse/categories?locale=sv_US`, {
-            method: 'GET',
-            headers: { 'Authorization' : 'Bearer ' + token}
-        });
-        const data = await result.json();
-        return data.categories.items;
-    }
-    const _getPlaylistByGenre = async (token, genreId) => {
-        const limit = 10;
-        const result = await fetch(`https://api.spotify.com/v1/browse/categories/${genreId}/playlists?limit=${limit}`, {
-            method: 'GET',
-            headers: { 'Authorization' : 'Bearer ' + token}
-        });
-        const data = await result.json();
-        return data.playlists.items;
-    }
     const _getArtistsByArtist = async (token, artistName) => {
-        const limit = 1;
+        const limit = 10;
         const result = await fetch(`https://api.spotify.com/v1/search?q=${artistName}&type=artist&limit=${limit}`, {
             method: 'GET',
             headers: { 'Authorization' : 'Bearer ' + token}
@@ -51,9 +34,10 @@ const APIController = (function() {
         const data = await result.json();
         return data.items;
     }
-    const _getTracks = async (token, tracksEndPoint) => {
+    const _getTracks = async (token, albumEndPoint) => {
         const limit = 10;
-        const result = await fetch(`${tracksEndPoint}?limit=${limit}`, {
+        console.log(`${albumEndPoint}/tracks`);
+        const result = await fetch(`${albumEndPoint}/tracks`, {
             method: 'GET',
             headers: { 'Authorization' : 'Bearer ' + token}
         });
@@ -102,16 +86,16 @@ const UIController = (function() {
 
     //object to hold references to html selectors
     const DOMElements = {
-        selectGenre: '#select_genre',
-        selectPlaylist: '#select_playlist',
-        buttonSubmit: '#btn_submit',
         divSongDetail: '#song-detail',
         hfToken: '#hidden_token',
         divSonglist: '.song-list',
         searchArtist: '#search_artist',
         buttonSubmit2: '#btn_submit2',
+        artistsResultsHeader: '#artist-results-header',
         divArtistlist: '.artist-list',
+        albumsResultsHeader: '#album-results-header',
         divAlbumlist: '.album-list',
+        songsResultsHeader: '#song-results-header',
     }
 
     //public methods
@@ -120,38 +104,33 @@ const UIController = (function() {
         //method to get input fields
         inputField() {
             return {
-                genre: document.querySelector(DOMElements.selectGenre),
-                playlist: document.querySelector(DOMElements.selectPlaylist),
                 tracks: document.querySelector(DOMElements.divSonglist),
-                submit: document.querySelector(DOMElements.buttonSubmit),
                 songDetail: document.querySelector(DOMElements.divSongDetail),
                 artist: document.querySelector(DOMElements.searchArtist),
                 submit2: document.querySelector(DOMElements.buttonSubmit2),
+                artistsResults: document.querySelector(DOMElements.artistsResultsHeader),
                 artists2: document.querySelector(DOMElements.divArtistlist),
-                albums: document.querySelector(DOMElements.divAlbumlist)
+                artistsResults: document.querySelector(DOMElements.albumsResultsHeader),
+                albums: document.querySelector(DOMElements.divAlbumlist),
+                songResultsHeader: document.querySelector(DOMElements.songsResultsHeader)
             }
         },
-
-        // need methods to create select list option
-        createGenre(text, value) {
-            const html = `<option value="${value}">${text}</option>`;
-            document.querySelector(DOMElements.selectGenre).insertAdjacentHTML('beforeend', html);
-        }, 
-        createPlaylist(text, value) {
-            const html = `<option value="${value}">${text}</option>`;
-            document.querySelector(DOMElements.selectPlaylist).insertAdjacentHTML('beforeend', html);
-        },
         // need method to create a track list group item 
-        createTrack(id, name) {
-            const html = `<a href="#" class="list-group-item list-group-item-action list-group-item-light" id="${id}">${name}</a>`;
+        createTrack(id, name, img) {
+            const html = `<a href="#" class="list-group-item list-group-item-action list-group-item-light" id="${id}">${name} <img src="${img}" align="right" style=" width: 50px; height: 50px;"> </a>`
+            document.querySelector(DOMElements.songsResultsHeader).innerHTML = '<h2>Songs</h2>';
             document.querySelector(DOMElements.divSonglist).insertAdjacentHTML('beforeend', html);
         },
         createArtist2(id, name, img) {
-            const html = `<a href="#" class="list-group-item list-group-item-action list-group-item-light" id="${id}">${name} <img src="${img}" align="right" style="border-radius: 50%;"> </a>`;
+            const html = `<a href="#" class="list-group-item list-group-item-action list-group-item-light" id="${id}">${name} <img src="${img}" align="right" style="border-radius: 50%; width: 50px; height: 50px;"> </a>`;
+            document.querySelector(DOMElements.artistsResultsHeader).innerHTML = '<h2>Artists</h2>';
             document.querySelector(DOMElements.divArtistlist).insertAdjacentHTML('beforeend', html);
         },
-        createAlbums(id, name, img) {
-            const html = `<a href="#" class="list-group-item list-group-item-action list-group-item-light" id="${id}">${name} <img src="${img}" align="right"> </a>`;
+        createAlbum(id, name, img) {
+            const html = `<a href="#" class="list-group-item list-group-item-action list-group-item-light" id="${id}" data-img="${img}">
+                ${name} <img src="${img}" align="right" style="width: 50px; height: 50px;">
+            </a>`
+            document.querySelector(DOMElements.albumsResultsHeader).innerHTML = '<h2>Albums</h2>';
             document.querySelector(DOMElements.divAlbumlist).insertAdjacentHTML('beforeend', html);
         },
         // need method to create the song detail
@@ -166,10 +145,10 @@ const UIController = (function() {
                 <img src="${img}" alt="">        
             </div>
             <div class="row col-sm-12 px-0">
-                <label for="Genre" class="form-label col-sm-12">${title}:</label>
+                <label for="Genre" class="form-label col-sm-12">${title}</label>
             </div>
             <div class="row col-sm-12 px-0">
-                <label for="artist" class="form-label col-sm-12">By ${artist}:</label>
+                <label for="artist" class="form-label col-sm-12">By: ${artist}</label>
             </div> 
             `;
 
@@ -188,10 +167,6 @@ const UIController = (function() {
         resetAlbums() {
             this.inputField().albums.innerHTML = '';
             this.resetAlbumDetail();
-        },
-        resetPlaylist() {
-            this.inputField().playlist.innerHTML = '';
-            this.resetTracks();
         },
         resetArtists2() {
             this.inputField().artists2.innerHTML = '';
@@ -213,70 +188,29 @@ const APPController = (function(UICtrl, APICtrl) {
     // get input field object ref
     const DOMInputs = UICtrl.inputField();
 
-    // get genres on page load
-    const loadGenres = async () => {
+    const loadToken = async () => {
         //get the token
         const token = await APICtrl.getToken();           
         //store the token onto the page
         UICtrl.storeToken(token);
-        //get the genres
-        const genres = await APICtrl.getGenres(token);
-        //populate our genres select element
-        genres.forEach(element => UICtrl.createGenre(element.name, element.id));
     }
-
-    // create genre change event listener
-    DOMInputs.genre.addEventListener('change', async () => {
-        //reset the playlist
-        UICtrl.resetPlaylist();
-        //get the token that's stored on the page
-        const token = UICtrl.getStoredToken().token;        
-        // get the genre select field
-        const genreSelect = UICtrl.inputField().genre;       
-        // get the genre id associated with the selected genre
-        const genreId = genreSelect.options[genreSelect.selectedIndex].value;             
-        // get the playlist based on a genre
-        const playlist = await APICtrl.getPlaylistByGenre(token, genreId);       
-        // create a playlist list item for every playlist returned
-        playlist.forEach(p => UICtrl.createPlaylist(p.name, p.tracks.href));
-    });
-     
-
-    // create submit button click event listener
-    DOMInputs.submit.addEventListener('click', async (e) => {
-        // prevent page reset
-        e.preventDefault();
-        // clear tracks
-        UICtrl.resetTracks();
-        //get the token
-        const token = UICtrl.getStoredToken().token;        
-        // get the playlist field
-        const playlistSelect = UICtrl.inputField().playlist;
-        // get track endpoint based on the selected playlist
-        const tracksEndPoint = playlistSelect.options[playlistSelect.selectedIndex].value;
-        // get the list of tracks
-        const tracks = await APICtrl.getTracks(token, tracksEndPoint);
-        // create a track list item
-        tracks.forEach(el => UICtrl.createTrack(el.track.href, el.track.name))
-        
-    });
 
     // create submit button click event listener
     DOMInputs.submit2.addEventListener('click', async (e) => {
         // prevent page reset
         e.preventDefault();
+        // reset artist and album options
         UICtrl.resetArtists2();
         UICtrl.resetAlbums();
         //get the token
         const token = UICtrl.getStoredToken().token;        
-        // get the playlist field
+        // get the artist field
         const artistSearch = UICtrl.inputField().artist;
-        // get track endpoint based on the selected playlist
+        // get artist endpoint based on the searched name
         const artistName = artistSearch.value;
-        // get the list of tracks
-
+        // get the list of artists
         const artists = await APICtrl.getArtistsByArtist(token, artistName);
-        // create a track list item
+        // create a artist list item
         artists.forEach(a => UICtrl.createArtist2(a.href, a.name, a.images[0].url))
     });
 
@@ -295,25 +229,43 @@ const APPController = (function(UICtrl, APICtrl) {
         UICtrl.createTrackDetail(track.album.images[2].url, track.name, track.artists[0].name);
     });    
 
-    // create song selection click event listener
+    // create album selection click event listener
     DOMInputs.artists2.addEventListener('click', async (e) => {
         // prevent page reset
         e.preventDefault();
+        UICtrl.resetAlbums();
+        UICtrl.resetTracks();
         // get the token
         const token = UICtrl.getStoredToken().token;
-        // get the track endpoint
+        // get the artist endpoint
         const artistId = e.target.id;
-        console.log(artistId);
-        //get the track object
+        //get the albums object
         const albums = await APICtrl.getAlbums(token, artistId);
-        // load the track details
-        albums.forEach(a => UICtrl.createAlbums(a.href, a.name, a.images[0].url))
+        // load the albums details
+        albums.forEach(a => UICtrl.createAlbum(a.href, a.name, a.images[0].url))
+    }); 
+
+    // create track selection click event listener
+    DOMInputs.albums.addEventListener('click', async (e) => {
+        // prevent page reset
+        e.preventDefault();
+        UICtrl.resetTracks();
+        // get the token
+        const token = UICtrl.getStoredToken().token;
+        // get the artist endpoint
+        const albumId = e.target.id;
+        // get the album cover
+        const img = e.target.getAttribute('data-img');
+        //get the albums object
+        const tracks = await APICtrl.getTracks(token, albumId);
+        // load the albums details
+        tracks.forEach(t => UICtrl.createTrack(t.href, t.name, img))
     }); 
 
     return {
         init() {
             console.log('App is starting');
-            loadGenres();
+            loadToken();
         }
     }
 
