@@ -255,7 +255,7 @@ const APPController = (function(UICtrl, APICtrl) {
         e.target.classList.add('highlighted');
     });    
 
-    // create album selection click event listener
+    // create artist selection click event listener
     DOMInputs.artists2.addEventListener('click', async (e) => {
         // prevent page reset
         e.preventDefault();
@@ -267,27 +267,27 @@ const APPController = (function(UICtrl, APICtrl) {
         const artistId = e.target.id;
         //get the albums object
         const albums = await APICtrl.getAlbums(token, artistId);
-        // load the albums details
+        // load the albums
         albums.forEach(a => UICtrl.createAlbum(a.href, a.name, a.images[0].url))
         // highlight selected item and/or remove previous highlight
         removeHighlighting('.artist-list .list-group-item');
         e.target.classList.add('highlighted');
     }); 
 
-    // create track selection click event listener
+    // create album selection click event listener
     DOMInputs.albums.addEventListener('click', async (e) => {
         // prevent page reset
         e.preventDefault();
         UICtrl.resetTracks();
         // get the token
         const token = UICtrl.getStoredToken().token;
-        // get the artist endpoint
+        // get the album endpoint
         const albumId = e.target.id;
         // get the album cover
         const img = e.target.getAttribute('data-img');
-        //get the albums object
+        //get the tracks object
         const tracks = await APICtrl.getTracks(token, albumId);
-        // load the albums details
+        // load the album tracks
         tracks.forEach(t => UICtrl.createTrack(t.href, t.name, img))
         // highlight selected item and/or remove previous highlight
         removeHighlighting('.album-list .list-group-item');
