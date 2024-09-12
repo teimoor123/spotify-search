@@ -130,7 +130,7 @@ const UIController = (function() {
             const html = `<a href="#" class="list-group-item list-group-item-action list-group-item-light" id="${id}" data-img="${img}">
                 ${name} <img src="${img}" align="right" style="width: 50px; height: 50px;">
             </a>`
-            document.querySelector(DOMElements.albumsResultsHeader).innerHTML = '<h2>Albums</h2>';
+            document.querySelector(DOMElements.albumsResultsHeader).innerHTML = `<h2>Albums</h2>`;
             document.querySelector(DOMElements.divAlbumlist).insertAdjacentHTML('beforeend', html);
         },
         // need method to create the song detail
@@ -148,7 +148,8 @@ const UIController = (function() {
                 </audio>`
                 : '<br>Sorry, no audio playback available yet for this song.';
 
-            detailDiv.innerHTML = 
+
+            document.querySelector(DOMElements.divSongDetail).innerHTML =
             `
             <div>
                 <img src="${img}" alt="" style=" width: 200px; height: 200px;">        
@@ -158,12 +159,14 @@ const UIController = (function() {
                 ${explicitImg}
             </div>
             <div>
+                <br>
                 By: ${artist}
                 <br>
                 ${playback}
             </div> 
             `
             ;
+            
 
         },
         resetTrackDetail() {
@@ -249,7 +252,7 @@ const APPController = (function(UICtrl, APICtrl) {
         //get the track object
         const track = await APICtrl.getTrack(token, trackEndpoint);
         // load the track details
-        UICtrl.createTrackDetail(track.album.images[2].url, track.name, track.artists[0].name, track.explicit, track.preview_url);
+        UICtrl.createTrackDetail(track.album.images[0].url, track.name, track.artists[0].name, track.explicit, track.preview_url);
         // highlight selected item and/or remove previous highlight
         removeHighlighting('.song-list .list-group-item');
         e.target.classList.add('highlighted');
@@ -281,7 +284,7 @@ const APPController = (function(UICtrl, APICtrl) {
         UICtrl.resetTracks();
         // get the token
         const token = UICtrl.getStoredToken().token;
-        // get the album endpoint
+        // get the a endpoint
         const albumId = e.target.id;
         // get the album cover
         const img = e.target.getAttribute('data-img');
